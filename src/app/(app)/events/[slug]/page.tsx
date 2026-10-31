@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { events, getEvent } from "@/lib/data";
 import EventDetail from "./Detail";
 
-// Dynamic params are validated by the segment above, which opts into blocking.
-export const instant = false;
 
 export function generateStaticParams() {
   return events.map((event) => ({ slug: event.slug }));

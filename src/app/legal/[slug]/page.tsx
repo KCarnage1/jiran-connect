@@ -3,8 +3,6 @@ import LegalDetail from "./Detail";
 
 const slugs = ["privacy", "terms", "cookies"] as const;
 
-// Dynamic params are validated by the segment above, which opts into blocking.
-export const instant = false;
 
 export function generateStaticParams() {
   return slugs.map((slug) => ({ slug }));

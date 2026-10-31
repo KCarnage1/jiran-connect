@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { communities, getCommunity } from "@/lib/data";
 import MajlisDetail from "./Detail";
 
-// Dynamic params are validated by the segment above, which opts into blocking.
-export const instant = false;
 
 export function generateStaticParams() {
   return communities.map((community) => ({ slug: community.slug }));

@@ -1,10 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { cookies } from "next/headers";
 import { Fraunces, IBM_Plex_Sans_Arabic, Inter } from "next/font/google";
 import "./globals.css";
 import { AppProviders } from "@/components/providers/AppProviders";
-import { LOCALE_COOKIE, SESSION_COOKIE, THEME_COOKIE, type Locale } from "@/lib/i18n/dictionary";
-import { parseSessionCookie } from "@/lib/auth-types";
+import { type Locale } from "@/lib/i18n/dictionary";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -43,15 +41,12 @@ export const viewport: Viewport = {
   ],
 };
 
-// The locale comes from a cookie so the server and the first client render agree
-// (no RTL/LTR hydration mismatch). That makes this segment request-rendered.
-export const instant = false;
-
-export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const cookieStore = await cookies();
-  const locale: Locale = cookieStore.get(LOCALE_COOKIE)?.value === "en" ? "en" : "ar";
-  const theme = cookieStore.get(THEME_COOKIE)?.value === "dark" ? "dark" : "light";
-  const initialUser = parseSessionCookie(cookieStore.get(SESSION_COOKIE)?.value);
+// The document is prerendered with the Arabic/light defaults so it can be exported
+// statically. The providers read the real locale, theme and session cookies on the
+// client and update <html> after hydration, so saved preferences still apply.
+export default function RootLayout({ children }: LayoutProps<"/">) {
+  const locale: Locale = "ar";
+  const theme = "light" as "light" | "dark";
   const dir = locale === "ar" ? "rtl" : "ltr";
 
   return (
@@ -68,7 +63,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         >
           Skip to content
         </a>
-        <AppProviders initialLocale={locale} initialTheme={theme} initialUser={initialUser}>
+        <AppProviders initialLocale={locale} initialTheme={theme} initialUser={null}>
           {children}
         </AppProviders>
       </body>

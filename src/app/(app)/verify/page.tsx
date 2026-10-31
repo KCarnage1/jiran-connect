@@ -48,8 +48,8 @@ export default function VerifyPage() {
         result.error === "invalid_id"
           ? t("verify.invalidId")
           : pick(
-              "Server pepper missing. Set UAE_PASS_HASH_PEPPER before verifying.",
-              "مفتاح التشفير غير مضبوط على الخادم. أضف UAE_PASS_HASH_PEPPER أولًا.",
+              "Hash salt missing. Set NEXT_PUBLIC_UAE_PASS_HASH_PEPPER before building.",
+              "مفتاح التشفير غير مضبوط. أضف NEXT_PUBLIC_UAE_PASS_HASH_PEPPER قبل البناء.",
             ),
       );
       return;

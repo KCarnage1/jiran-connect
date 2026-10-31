@@ -2,9 +2,8 @@ import { Suspense, type ReactNode } from "react";
 import { AppShell } from "@/components/shell/AppShell";
 
 // The authenticated shell reads the URL (usePathname) for active navigation and
-// client-only libraries (Leaflet, Tiptap) bail out of SSR. This segment renders
-// as a blocking route, with a Suspense boundary for the bailing subtrees.
-export const instant = false;
+// client-only libraries (Leaflet, Tiptap) bail out of SSR, so the bailing
+// subtrees sit inside a Suspense boundary and the shell stays prerenderable.
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (

@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { cultureItems, getCulture } from "@/lib/data";
 import CultureDetail from "./Detail";
 
-// Dynamic params are validated by the segment above, which opts into blocking.
-export const instant = false;
 
 export function generateStaticParams() {
   return cultureItems.map((item) => ({ slug: item.slug }));

@@ -2,6 +2,8 @@
 
 A privacy-first UAE community platform connecting locals and newcomers through verified majlis, real gatherings and cultural exchange. Arabic-first, fully bilingual, Glass UI.
 
+**Live demo:** https://kcarnage1.github.io/jiran-connect/
+
 ## Stack
 
 - **Next.js 16** (App Router, Turbopack, Cache Components) + **React 19** + TypeScript strict
@@ -30,10 +32,13 @@ Copy `.env.example` to `.env.local` and fill in what you need:
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public anon key (RLS enforced) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-only admin operations |
 | `UAE_PASS_HASH_PEPPER` | Server-side pepper for Emirates ID hashing (min 16 chars) |
+| `NEXT_PUBLIC_UAE_PASS_HASH_PEPPER` | Pepper for the static build, where hashing runs in the browser |
 | `AI_API_KEY` | Model key for the assistant (Phase 6 integration point) |
 
 `UAE_PASS_HASH_PEPPER` is required for the verification flow. A random value is already in
-`.env.local` for local development; rotate it per environment (bump `pepper_version`).
+`.env.local` for local development; rotate it per environment (bump `pepper_version`). The
+static (GitHub Pages) build has no server, so it hashes in the browser and ships
+`NEXT_PUBLIC_UAE_PASS_HASH_PEPPER` in the bundle — that value is a demo salt, not a secret.
 
 ## Database
 
@@ -54,6 +59,19 @@ Highlights:
   `can_manage_community`) to avoid RLS recursion; role/status changes are enforced by triggers.
 - RSVPs are written through `rsvp_to_event()`, which locks the event row and auto-waitlists at capacity.
 - `moderation_actions` is an append-only audit log (no UPDATE/DELETE policy exists).
+
+## Deploy
+
+The site is a static export (`output: "export"`) deployed to GitHub Pages by
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) on every push to `main`.
+
+```bash
+GITHUB_PAGES=true npm run build   # emits out/, with the /jiran-connect base path
+```
+
+Locally `npm run dev` and `npm run build` stay at the root path; only the Pages build sets
+`GITHUB_PAGES=true`, which adds the `/jiran-connect` base path and disables Cache Components
+(PPR is not supported in export mode).
 
 ## What is built
 
@@ -84,9 +102,10 @@ Highlights:
   with the Glass recipe; Leaflet's chrome is overridden in `globals.css`.
 - **RTL** — layouts use CSS logical properties only; `dir` flips on `<html>` and every screen
   mirrors without a second stylesheet.
-- **Next 16 specifics** — dynamic routes export `generateStaticParams` and are rendered through
-  server wrappers; the authenticated segment opts into blocking (`instant = false`) because the
-  shell reads the URL and the session.
+- **Next 16 specifics** — dynamic routes export `generateStaticParams`, so every route is
+  prerendered. The document is rendered with Arabic/light defaults and the providers hydrate the
+  saved locale, theme and session from cookies on the client, which is what lets the whole app be
+  exported statically without a hydration mismatch.
 
 ## Known limitations
 

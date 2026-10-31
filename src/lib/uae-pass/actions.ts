@@ -1,14 +1,15 @@
-"use server";
-
-import { createHash, randomUUID } from "node:crypto";
-
 /**
- * Mocked UAE PASS integration — production contract, demo transport.
+ * Mocked UAE PASS integration — production contract, static transport.
  *
- * The Emirates ID is hashed on the server with a private pepper and is never
- * written to a database, a log, or a response body. Only the hash is returned,
- * and the client stores exactly what the schema stores:
- * hash + status + timestamp (+ record id).
+ * GitHub Pages is a static host, so there is no server to hash on. The Emirates
+ * ID is hashed in the browser with Web Crypto (SHA-256) and only the hash is
+ * stored: hash + status + timestamp (+ record id). The plaintext never leaves
+ * the function that computes it.
+ *
+ * Because the hash is computed client-side, the pepper is part of the shipped
+ * bundle and is therefore not a secret — treat it as a demo salt. A deployment
+ * with a server should hash server-side and keep the pepper private (that was
+ * the previous `"use server"` implementation).
  */
 
 export interface VerificationDraft {
@@ -27,21 +28,30 @@ export interface VerificationResult {
 
 const DIGITS = /\D/g;
 
+// Set NEXT_PUBLIC_UAE_PASS_HASH_PEPPER at build time to override the demo salt.
+const PEPPER = process.env.NEXT_PUBLIC_UAE_PASS_HASH_PEPPER ?? "sanad-demo-pepper-change-me";
+
+async function sha256Hex(input: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 export async function requestVerification(
   rawEmiratesId: string,
 ): Promise<{ error: "invalid_id" | "missing_pepper" } | { draft: VerificationDraft }> {
   const digits = rawEmiratesId.replace(DIGITS, "");
   if (digits.length !== 15) return { error: "invalid_id" };
 
-  const pepper = process.env.UAE_PASS_HASH_PEPPER;
-  if (!pepper || pepper.length < 16) return { error: "missing_pepper" };
+  if (!PEPPER || PEPPER.length < 16) return { error: "missing_pepper" };
 
-  const idHash = createHash("sha256").update(`${digits}:${pepper}`, "utf8").digest("hex");
+  const idHash = await sha256Hex(`${digits}:${PEPPER}`);
 
   // The plaintext `digits` go out of scope here and are never persisted.
   return {
     draft: {
-      recordId: randomUUID(),
+      recordId: crypto.randomUUID(),
       idHash,
       status: "pending",
       requestedAt: new Date().toISOString(),
