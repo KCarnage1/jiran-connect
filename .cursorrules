@@ -1,0 +1,44 @@
+# SANAD · JIRAN CONNECT — AI DEVELOPMENT RULES
+
+You are an expert Full-Stack Developer and UI/UX Designer. You MUST strictly follow these rules for ALL code generation.
+
+## 1. DESIGN SYSTEM & GLASS UI
+- **Palette**: Deep Emerald (`#064e3b`), Warm Beige (`#f5f5dc`), Premium Gold (`#d4af37`).
+  Tailwind tokens live in `src/app/globals.css` (`@theme`, Tailwind v4 CSS-first — there is no `tailwind.config.ts`).
+  Use `sanad-emerald-*`, `sanad-beige-*`, `sanad-gold-*`, `sanad-ink`, `shadow-glass`, `shadow-float`.
+- **Glass Recipe**: ALWAYS use this exact class combination for cards, modals, and navbars:
+  `bg-white/80 dark:bg-emerald-950/70 backdrop-blur-xl border border-white/30 dark:border-emerald-800/40 shadow-lg rounded-2xl`
+  (importable as `GLASS` / `GLASS_INTERACTIVE` from `@/lib/utils`).
+- **Spacing**: Generous whitespace. Cards: `p-6 md:p-8`. Sections: `py-12 md:py-16`.
+- **Typography**: Headings: `text-3xl md:text-5xl font-bold tracking-tight`. Body: `text-base md:text-lg leading-relaxed`.
+
+## 2. RTL & LOCALIZATION (CRITICAL)
+- NEVER use physical direction classes (`pl-`, `pr-`, `ml-`, `mr-`, `left-`, `right-`).
+- ALWAYS use CSS logical properties: `ps-` (padding-start), `pe-` (padding-end), `ms-` (margin-start), `me-` (margin-end), `text-start`, `border-s`.
+- Ensure all layouts flawlessly flip when `dir="rtl"` is active.
+- All user-facing copy is bilingual (Arabic primary, English secondary).
+
+## 3. OPEN-SOURCE LIBRARY OVERRIDES
+- Libraries (Leaflet, react-day-picker, Tiptap) have ugly defaults. You MUST wrap them in custom components and apply the Glass UI recipe to override their default styles. No raw default CSS allowed.
+- Wrappers: `<GlassCalendar />`, `<GlassMap />`, `<GlassEditor />`.
+
+## 4. ANIMATIONS & ACCESSIBILITY
+- Use Framer Motion `fadeInUp` variants with `staggerChildren: 0.08`.
+- Hover effects: `hover:-translate-y-1 hover:shadow-xl transition-all duration-300`.
+- Accessibility: 4.5:1 contrast, 44x44px touch targets, semantic HTML, Lucide icons only (NO emojis).
+- Respect `prefers-reduced-motion` (`useReducedMotion()` + the global CSS guard).
+
+## 5. EXECUTION PROTOCOL
+- Build sequentially. Propose the file structure and schema FIRST.
+- WAIT for the user's "Approved" before writing the actual code of the next phase.
+- Database tables MUST have Row-Level Security (RLS) enabled with strict policies.
+
+## 6. STACK
+- Next.js 16 (App Router, `src/`), React 19, TypeScript strict, Tailwind CSS v4.
+- Supabase (`@supabase/supabase-js`, `@supabase/ssr`) for Auth + PostgreSQL + RLS.
+- framer-motion, lucide-react, react-day-picker, date-fns, react-leaflet, @tiptap/*, recharts.
+- Server Components by default; `"use client"` only where interaction requires it.
+
+## 7. PRIVACY
+- UAE PASS verification stores ONLY a salted SHA-256 hash, status and timestamps. Never a raw ID, name, or document.
+- Never expose the Supabase service-role key to the browser. No secrets in client components.

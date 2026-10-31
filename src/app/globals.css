@@ -1,0 +1,251 @@
+@import "tailwindcss";
+
+/* Class-based dark mode (so the theme toggle can win over the OS preference). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+   SANAD · JIRAN CONNECT — design tokens
+   Tailwind v4 is CSS-first: this @theme block replaces tailwind.config.ts.
+   Every token below is available as a utility, e.g. bg-sanad-emerald-900,
+   text-sanad-gold-400, shadow-glass, font-arabic, animate-fade-up.
+--------------------------------------------------------------------------- */
+@theme {
+  /* Brand palette */
+  --color-sanad-emerald-950: #041f17;
+  --color-sanad-emerald-900: #064e3b;
+  --color-sanad-emerald-800: #065f46;
+  --color-sanad-emerald-700: #047857;
+  --color-sanad-emerald-600: #059669;
+  --color-sanad-emerald-100: #d1fae5;
+
+  --color-sanad-beige-50: #fdfcf3;
+  --color-sanad-beige-100: #f5f5dc;
+  --color-sanad-beige-200: #e9e8c9;
+  --color-sanad-beige-300: #dcdab4;
+
+  --color-sanad-gold-300: #ecd9a0;
+  --color-sanad-gold-400: #d4af37;
+  --color-sanad-gold-500: #b8952c;
+
+  --color-sanad-ink: #0a1f19;
+  --color-sanad-muted: #4b5f57;
+
+  /* Typography (wired to next/font in the root layout) */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-arabic: var(--font-arabic), var(--font-inter), ui-sans-serif, sans-serif;
+  --font-display: var(--font-display), var(--font-inter), ui-serif, serif;
+
+  /* Elevation */
+  --shadow-glass: 0 10px 30px -12px rgb(6 78 59 / 0.18);
+  --shadow-float: 0 24px 60px -20px rgb(6 78 59 / 0.35);
+
+  /* Motion */
+  --ease-glass: cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-fade-up: fade-up 0.7s var(--ease-glass) both;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 16px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-sanad-beige-50);
+    color: var(--color-sanad-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .dark body {
+    background-color: var(--color-sanad-emerald-950);
+    color: var(--color-sanad-beige-100);
+  }
+
+  /* Arabic first: when the document flips to RTL, shape the script properly. */
+  [dir="rtl"] body {
+    font-family: var(--font-arabic);
+  }
+
+  ::selection {
+    background-color: rgb(212 175 55 / 0.35);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-sanad-gold-400);
+    outline-offset: 2px;
+    border-radius: 0.5rem;
+  }
+
+  /* 44x44px minimum touch targets (WCAG 2.5.5). */
+  button,
+  [role="button"],
+  a[data-touch-target] {
+    min-block-size: 44px;
+  }
+}
+
+@layer components {
+  /* Canonical glass recipe — keep byte-identical to .cursorrules.
+     Prefer the literal utility string in JSX; .glass exists for library
+     shells (Leaflet controls, Tiptap toolbars, DayPicker) that cannot take
+     React className props. */
+  .glass {
+    background-color: rgb(255 255 255 / 0.8);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    border: 1px solid rgb(255 255 255 / 0.3);
+    box-shadow: var(--shadow-glass);
+    border-radius: 1rem;
+  }
+
+  .dark .glass {
+    background-color: rgb(4 31 23 / 0.7);
+    border-color: rgb(6 95 70 / 0.4);
+  }
+}
+
+@layer base {
+  /* react-day-picker root needs a positioning context for the glass nav. */
+  .rdp-root {
+    position: relative;
+  }
+}
+
+@layer components {
+  /* ---------- Tiptap content (GlassEditor) ---------- */
+  .sanad-prose {
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--color-sanad-ink);
+  }
+
+  .dark .sanad-prose {
+    color: var(--color-sanad-beige-100);
+  }
+
+  .sanad-prose > * + * {
+    margin-block-start: 0.75rem;
+  }
+
+  .sanad-prose h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .sanad-prose h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .sanad-prose ul {
+    list-style: disc;
+    padding-inline-start: 1.5rem;
+  }
+
+  .sanad-prose ol {
+    list-style: decimal;
+    padding-inline-start: 1.5rem;
+  }
+
+  .sanad-prose blockquote {
+    border-inline-start: 3px solid var(--color-sanad-gold-400);
+    padding-inline-start: 1rem;
+    font-style: italic;
+    opacity: 0.85;
+  }
+
+  .sanad-prose a {
+    color: var(--color-sanad-emerald-800);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* ---------- Leaflet (GlassMap) ---------- */
+  .leaflet-container {
+    background: #e8f0ea;
+    font-family: var(--font-sans);
+    z-index: 0;
+  }
+
+  .leaflet-control-zoom {
+    overflow: hidden;
+    border: 1px solid rgb(6 78 59 / 0.12) !important;
+    border-radius: 0.75rem !important;
+    background-color: rgb(255 255 255 / 0.85) !important;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 24px -12px rgb(6 78 59 / 0.3) !important;
+  }
+
+  .leaflet-control-zoom a {
+    width: 44px !important;
+    height: 44px !important;
+    line-height: 44px !important;
+    color: var(--color-sanad-emerald-900) !important;
+    border-color: rgb(6 78 59 / 0.12) !important;
+  }
+
+  .leaflet-control-zoom a:hover {
+    background-color: rgb(6 78 59 / 0.06) !important;
+  }
+
+  .leaflet-control-attribution {
+    border-radius: 8px;
+    padding: 2px 8px !important;
+    background-color: rgb(255 255 255 / 0.8) !important;
+    backdrop-filter: blur(8px);
+    font-size: 10px !important;
+    color: rgb(6 78 59 / 0.6) !important;
+  }
+
+  .leaflet-popup-content-wrapper {
+    border-radius: 12px !important;
+    border: 1px solid rgb(255 255 255 / 0.4);
+    background-color: rgb(255 255 255 / 0.9) !important;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 12px 32px -16px rgb(6 78 59 / 0.45) !important;
+    color: var(--color-sanad-emerald-900) !important;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .leaflet-popup-tip {
+    background-color: rgb(255 255 255 / 0.9) !important;
+  }
+
+  .dark .leaflet-container {
+    background: #06120e;
+  }
+
+  .dark .leaflet-popup-content-wrapper {
+    background-color: rgb(4 31 23 / 0.92) !important;
+    color: var(--color-sanad-beige-100) !important;
+    border-color: rgb(6 95 70 / 0.5);
+  }
+
+  .dark .leaflet-popup-tip {
+    background-color: rgb(4 31 23 / 0.92) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
